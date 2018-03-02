@@ -8,4 +8,4 @@ For more information about this sample see [Implementing a HybridWebView](http:/
 Author
 ------
 
-David Britch
+Thomas Galliker (Original Author: David Britch)
