@@ -1,0 +1,12 @@
+﻿.highlight {
+    background-color: yellow;
+}
+.highlightActive {
+    background-color: red;
+    text-decoration: underline;
+}
+
+.activeDiv {
+    background-color: yellow;
+    text-decoration: underline;
+}
