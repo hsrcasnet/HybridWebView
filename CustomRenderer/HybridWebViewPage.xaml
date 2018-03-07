@@ -1,12 +1,13 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms" 
-			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-			 xmlns:local="clr-namespace:CustomRenderer;assembly=CustomRenderer"
-			 x:Class="CustomRenderer.HybridWebViewPage"
-			 Padding="0,20,0,0">
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:CustomRenderer;assembly=CustomRenderer"
+             x:Class="CustomRenderer.HybridWebViewPage"
+             Padding="0,20,0,0">
 
     <Grid>
-        <Grid RowSpacing="0" ColumnSpacing="0">
+        <Grid RowSpacing="0" ColumnSpacing="0" 
+              BackgroundColor="DimGray">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -17,17 +18,22 @@
             </Grid.ColumnDefinitions>
 
             <SearchBar
+                x:Name="SearchBar"
                 Grid.Row="0"
                 Grid.Column="0"
-                x:Name="SearchBar"
                 Placeholder="Search"
-                Text="ipsum"/>
-            
+                Text=""
+                TextChanged="FindNextButtonClicked"
+                BackgroundColor="DimGray"/>
+
             <Button
                 Grid.Row="0"
                 Grid.Column="1"
                 Text="Find next"
-                Clicked="FindNextButtonClicked" />
+                Clicked="FindNextButtonClicked"
+                WidthRequest="80"
+                TextColor="White"
+                BackgroundColor="Transparent"/>
 
             <local:HybridWebView
                 x:Name="HybridWebView" 

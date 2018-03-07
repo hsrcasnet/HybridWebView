@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Threading.Tasks;
 using Android.Webkit;
 using CustomRenderer;
 using CustomRenderer.Droid;
@@ -37,10 +38,11 @@ namespace CustomRenderer.Droid
 			}
 		}
 
-	    private void UpdateSearchText(string s)
+	    private Task UpdateSearchText(string s)
 	    {
 	        this.Control.LoadUrl("javascript:searchHighlight('" + s + "');");
-        }
+	        return Task.CompletedTask;
+	    }
 
 	    private void InjectJs (string script)
 		{

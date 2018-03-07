@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Threading.Tasks;
 using CustomRenderer;
 using CustomRenderer.iOS;
 using Foundation;
@@ -46,16 +47,15 @@ namespace CustomRenderer.iOS
             }
 		}
 
-	    private async void UpdateSearchText(string s)
+	    private async Task UpdateSearchText(string searchText)
 	    {
-	        var js = (NSString)"javascript:searchHighlight('" + s + "');";
+	        var js = (NSString)"javascript:searchHighlight('" + searchText + "');";
 	        await this.Control.EvaluateJavaScriptAsync(js);
-
         }
 
-        public void DidReceiveScriptMessage (WKUserContentController userContentController, WKScriptMessage message)
+        public void DidReceiveScriptMessage(WKUserContentController userContentController, WKScriptMessage message)
 		{
-			Element.CallbackAction (message.Body.ToString ());
+			Element.CallbackAction (message.Body.ToString());
 		}
 	}
 }

@@ -1,68 +1,72 @@
 ﻿using System;
+using System.Reflection;
+using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace CustomRenderer
 {
-	public class HybridWebView : View
-	{
-		Action<string> searchTextUpdateAction;
-		Action<string> callbackAction;
+    public class HybridWebView : View
+    {
+        public static readonly BindableProperty UriProperty = BindableProperty.Create(
+            "Uri",
+            typeof(string),
+            typeof(HybridWebView),
+            default(string));
 
-		public static readonly BindableProperty UriProperty = BindableProperty.Create (
-			propertyName: "Uri",
-			returnType: typeof(string),
-			declaringType: typeof(HybridWebView),
-			defaultValue: default(string));
-		
-		public string Uri {
-			get { return (string)GetValue (UriProperty); }
-			set { SetValue (UriProperty, value); }
-		}
+        public static readonly BindableProperty SearchTextProperty = BindableProperty.Create(
+            "SearchText",
+            typeof(string),
+            typeof(HybridWebView),
+            default(string));
 
-	    public static readonly BindableProperty SearchTextProperty = BindableProperty.Create(
-	        propertyName: "SearchText",
-	        returnType: typeof(string),
-	        declaringType: typeof(HybridWebView),
-	        defaultValue: default(string));
+        private Action<string> callbackAction;
+        private Func<string, Task> searchTextUpdateTask;
 
-	    public string SearchText
+        public string Uri
         {
-	        get { return (string)GetValue(SearchTextProperty); }
-	        set { SetValue(SearchTextProperty, value); }
-	    }
-
-	    public void RegisterSearchTextUpdate(Action<string> callback)
-	    {
-	        searchTextUpdateAction = callback;
-	    }
-
-        public void CallbackAction (string data)
-		{
-			if (callbackAction == null || data == null) {
-				return;
-			}
-		    callbackAction.Invoke(data);
-		}
-
-	    public void RegisterCallbackAction(Action<string> callback)
-	    {
-	        callbackAction = callback;
-	    }
-
-        public void UpdateSearchText(string searchText)
-	    {
-	        if (searchTextUpdateAction == null || searchText == null)
-	        {
-	            return;
-	        }
-	        searchTextUpdateAction.Invoke(searchText);
+            get => (string) GetValue(UriProperty);
+            set => SetValue(UriProperty, value);
         }
 
+        public string SearchText
+        {
+            get => (string) GetValue(SearchTextProperty);
+            set => SetValue(SearchTextProperty, value);
+        }
 
-	    public void Cleanup()
-	    {
-	        searchTextUpdateAction = null;
-	        callbackAction = null;
-	    }
+        public void RegisterSearchTextUpdate(Func<string, Task> callback)
+        {
+            searchTextUpdateTask = callback;
+        }
+
+        public void CallbackAction(string data)
+        {
+            if (callbackAction == null || data == null)
+            {
+                return;
+            }
+            callbackAction.Invoke(data);
+        }
+
+        public void RegisterCallbackAction(Action<string> callback)
+        {
+            callbackAction = callback;
+        }
+
+        public async Task UpdateSearchText(string searchText)
+        {
+            if (searchTextUpdateTask == null || searchText == null)
+            {
+                return;
+            }
+
+            await searchTextUpdateTask(searchText);
+        }
+
+        public void Cleanup()
+        {
+            searchTextUpdateTask = null;
+            callbackAction = null;
+        }
     }
 }

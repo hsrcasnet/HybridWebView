@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Windows.UI.Xaml.Controls;
 using CustomRenderer;
 using CustomRenderer.UWP;
@@ -30,7 +31,7 @@ namespace CustomRenderer.UWP
             if (e.NewElement != null)
             {
                 var hybridWebView = e.NewElement;
-                hybridWebView.RegisterSearchTextUpdate(UpdateSearchText);
+                hybridWebView.RegisterSearchTextUpdate(this.UpdateSearchText);
 
                 Control.NavigationCompleted += OnWebViewNavigationCompleted;
                 Control.ScriptNotify += OnWebViewScriptNotify;
@@ -38,9 +39,9 @@ namespace CustomRenderer.UWP
             }
         }
 
-        private async void UpdateSearchText(string s)
+        private async Task UpdateSearchText(string searchText)
         {
-            await Control.InvokeScriptAsync("searchHighlight", new[] {s});
+            await Control.InvokeScriptAsync("searchHighlight", new[] { searchText });
         }
 
         private async void OnWebViewNavigationCompleted(WebView sender, WebViewNavigationCompletedEventArgs args)

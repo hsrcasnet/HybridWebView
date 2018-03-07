@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace CustomRenderer
@@ -9,19 +10,25 @@ namespace CustomRenderer
         {
             this.InitializeComponent();
 
-            this.SearchBar.SearchCommand = new Command(OnSearch);
             this.HybridWebView.RegisterCallbackAction(data => this.DisplayAlert("CallbackAction", "data= " + data, "OK"));
             this.HybridWebView.SearchText = "";
         }
 
-        private void OnSearch()
+        private async Task OnSearch()
         {
-            this.HybridWebView.UpdateSearchText(this.SearchBar.Text);
+            try
+            {
+                await this.HybridWebView.UpdateSearchText(this.SearchBar.Text);
+            }
+            catch (Exception ex)
+            {
+                await this.DisplayAlert("UpdateSearchText", $"Exception: {ex}", "OK");
+            }
         }
 
-        private void FindNextButtonClicked(object sender, EventArgs e)
+        private async void FindNextButtonClicked(object sender, EventArgs e)
         {
-            this.OnSearch();
+            await this.OnSearch();
         }
     }
 }

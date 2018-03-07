@@ -20,7 +20,8 @@ namespace CustomRenderer.Droid
 		[Export (nameof(InvokeAction))]
 		public void InvokeAction (string data)
 		{
-		    if (hybridWebViewRenderer != null && hybridWebViewRenderer.TryGetTarget (out var hybridRenderer)) {
+		    if (hybridWebViewRenderer != null && hybridWebViewRenderer.TryGetTarget (out var hybridRenderer))
+		    {
 				hybridRenderer.Element.CallbackAction (data);
 			}
 		}

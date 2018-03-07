@@ -1,97 +1,126 @@
 ﻿$(function () {
+
+    // JavaScript to C# action returns string to C#
     $('#actionButton').click(function () {
         invokeCSCode($('#callbackData').val());
     });
 
-    // remove existing highlights, then find the next occurrence and highlight it
-    ////$('#trigger').click(function () {
-    ////    if (index == 0) {
-    ////        highlightAll('ipsum');
-    ////        index = 1;
-    ////    } else {
-    ////        scrollMe('ipsum');
-    ////    }
+    // the input field
+    var $input = $("input[type='search']"),
+        // clear button
+        $clearBtn = $("button[data-search='clear']"),
+        // prev button
+        $prevBtn = $("button[data-search='prev']"),
+        // next button
+        $nextBtn = $("button[data-search='next']"),
+        // the context where to search
+        $content = $(".content"),
+        // jQuery object to save <mark> elements
+        $results,
+        // the class that will be appended to the current
+        // focused element
+        currentClass = "current",
+        // top offset for the jump (the search bar)
+        offsetTop = 100,
+        // the current index of the focused element
+        currentIndex = 0,
 
-    ////});
+        // Local search text cache
+        searchTextLocal;
 
-    function removeAllHighlights(searchText) {
-        $('#mainContent:contains("<span class="highlight">' + searchText + '</span>")').each(function () {
-            $(this).html($(this).html().replace(new RegExp(searchText, 'g'), searchText));
-            return false;
+    /**
+     * Jumps to the element matching the currentIndex
+     */
+    function jumpTo() {
+        if ($results != undefined && $results.length) {
+            var position,
+                $current = $results.eq(currentIndex);
+            $results.removeClass(currentClass);
+            if ($current.length) {
+                $current.addClass(currentClass);
+                position = $current.offset().top - offsetTop;
+                window.scrollTo(0, position);
+            }
+        }
+    }
+
+    /**
+     * Searches for the entered keyword in the
+     * specified context
+     */
+    function markSearchText(searchText) {
+        $content.unmark({
+            done: function () {
+                $content.mark(searchText, {
+                    separateWordSearch: true,
+                    done: function () {
+                        $results = $content.find("mark");
+                        currentIndex = 0;
+                        jumpTo();
+                    }
+                });
+            }
         });
     }
 
-    function highlightAll(searchText) {
-        $('#mainContent:contains("' + searchText + '")').each(function () {
-            $(this).html($(this).html().replace(new RegExp(searchText, 'g'), '<span class="highlight">' + searchText + '</span>'));
-            $(this).find('.highlight').fadeIn("slow");
-            
-            var offset = $(this).offset().top;
-            $('html,body').animate({
-                scrollTop: offset
-            }, 500);
-            return false;
-        });
-    }
-    
-    // stores the currently highlighted occurence
-    var index = 0;
-    var searchTextLocal;
-
-    $('#trigger').click(function () {
-        highlightNext(searchTextLocal);
+    /**
+     * Searches for the entered keyword in the
+     * specified context on input
+     */
+    $input.on("input", function () {
+        var searchText = this.value;
+        markSearchText(searchText);
     });
 
-    function highlightNext(searchText) {
-      
-        var allHighlighted = $('.highlight');
-        if (index == allHighlighted.length) {
-            index = 0;
+    /**
+     * Clears the search
+     */
+    $clearBtn.on("click", function () {
+        $content.unmark();
+        $input.val("").focus();
+    });
+
+    /**
+     * Moves the currently highlighted search text
+     * by +1 (next) or -1 (previous).
+     */
+    function moveCurrent(step) {
+        if ($results != undefined && $results.length) {
+            currentIndex += step;
+            if (currentIndex < 0) {
+                currentIndex = $results.length - 1;
+            }
+            if (currentIndex > $results.length - 1) {
+                currentIndex = 0;
+            }
+            jumpTo();
         }
-     
-        if (allHighlighted.length <= 0) {
-            highlightAll(searchText);
-            allHighlighted = $('.highlight');
-            index = 0;
-        }
+    }
 
-        // Reset active/highlighted item(s)
-        allHighlighted.find('span.highlightActive').replaceWith(searchText);
+    /**
+     * Next and previous search jump to
+     */
+    $nextBtn.add($prevBtn).on("click", function () {
+        var step = $(this).is($prevBtn) ? -1 : 1;
+        moveCurrent(step);
+    });
 
-        var $next = allHighlighted.eq(index++);
-        $next.html($next.html().replace(searchText, '<span class="highlightActive">' + searchText + '</span>'));
-
-        var offset = $next.offset().top - 60;
-        console.log("scroll to offset=" + offset);
-
-        $('html,body').animate({
-            scrollTop: offset
-        }, 100);
-        return false;
-    };
-
-    window.highlightNext = highlightNext;
-
-
+    /**
+     * Search text update method called from C# code.
+     */
     function searchHighlight(searchText) {
-        if (searchTextLocal == searchText) {
-            highlightNext(searchText);
-            
+        if (searchText == searchTextLocal) {
+            moveCurrent(1);
         } else {
-            removeAllHighlights(searchTextLocal);
-            index = 0;
             searchTextLocal = searchText;
-            highlightAll(searchText);
-            highlightNext(searchText);
+            if (searchText == undefined || searchText == '') {
+                $content.unmark();
+            }
+            else {
+                markSearchText(searchText);
+            }
         }
     }
 
     window.searchHighlight = searchHighlight;
-
-    // scroll our trigger link when the screen moves so we can click it again
-    $(window).scroll(function () {
-        var top = $(window).scrollTop();
-        $('#trigger').offset({ top: top, left: 0 });
-    });
-
 });
